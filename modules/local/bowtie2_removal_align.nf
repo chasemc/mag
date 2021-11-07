@@ -42,14 +42,14 @@ process BOWTIE2_REMOVAL_ALIGN {
                 -1 "${reads[0]}" -2 "${reads[1]}" \
                 $sensitivity \
                 --un-conc-gz ${prefix}.unmapped_%.fastq.gz \
-                --al-conc-gz ${prefix}.mapped_%.fastq.gz \
+                --al-conc-gz ${prefix}.mapped_%.fastq \
                 1> /dev/null \
                 2> ${prefix}.bowtie2.log
         if [ ${save_ids} = "Y" ] ; then
-            gunzip -c ${prefix}.mapped_1.fastq.gz | awk '{if(NR%4==1) print substr(\$0, 2)}' | LC_ALL=C sort > ${prefix}.mapped_1.read_ids.txt
-            gunzip -c ${prefix}.mapped_2.fastq.gz | awk '{if(NR%4==1) print substr(\$0, 2)}' | LC_ALL=C sort > ${prefix}.mapped_2.read_ids.txt
+            awk '{if(NR%4==1) print substr(\$0, 2)}' | ${prefix}.mapped_1.fastq | LC_ALL=C sort > ${prefix}.mapped_1.read_ids.txt
+            awk '{if(NR%4==1) print substr(\$0, 2)}' | ${prefix}.mapped_2.fastq | LC_ALL=C sort > ${prefix}.mapped_2.read_ids.txt
         fi
-        rm -f ${prefix}.mapped_*.fastq.gz
+        rm -f ${prefix}.mapped_*.fastq
 
         echo \$(bowtie2 --version 2>&1) | sed 's/^.*bowtie2-align-s version //; s/ .*\$//' > ${software}.version.txt
         """
@@ -60,13 +60,14 @@ process BOWTIE2_REMOVAL_ALIGN {
                 -U ${reads} \
                 $sensitivity \
                 --un-gz ${prefix}.unmapped.fastq.gz \
-                --al-gz ${prefix}.mapped.fastq.gz \
+                --al ${prefix}.mapped.fastq \
                 1> /dev/null \
                 2> ${prefix}.bowtie2.log
         if [ ${save_ids} = "Y" ] ; then
-            gunzip -c ${prefix}.mapped.fastq.gz | awk '{if(NR%4==1) print substr(\$0, 2)}' | LC_ALL=C sort > ${prefix}.mapped.read_ids.txt
+            awk '{if(NR%4==1) print substr(\$0, 2)}' | ${prefix}.mapped.fastq.gz | LC_ALL=C sort > ${prefix}.mapped.read_ids.txt
         fi
-        rm -f ${prefix}.mapped.fastq.gz
+
+        rm -f ${prefix}.mapped.fastq
 
         echo \$(bowtie2 --version 2>&1) | sed 's/^.*bowtie2-align-s version //; s/ .*\$//' > ${software}.version.txt
         """
